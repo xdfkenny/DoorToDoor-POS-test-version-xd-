@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { parseExcelFile, Product } from "@/services/excel";
 import {
   Card,
@@ -24,6 +24,34 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { suggestProductName } from "@/ai/flows/suggest-product-name";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const productSchema = z.object({
+  code: z.string().min(1, { message: "Product code is required." }),
+  name: z.string().min(1, { message: "Product name is required." }),
+  price: z.number().min(0, { message: "Price must be a positive number." }),
+});
+
+type ProductSchemaType = z.infer<typeof productSchema>;
 
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -34,6 +62,24 @@ export default function Home() {
   const [sellerName, setSellerName] = useState("");
   const [orderNotes, setOrderNotes] = useState("");
   const { toast } = useToast();
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // Seller Login State
+  const [showProductForm, setShowProductForm] = useState(false);
+  const [isEditingProduct, setIsEditingProduct] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
+  const form = useForm<ProductSchemaType>({
+    resolver: zodResolver(productSchema),
+    defaultValues: {
+      code: "",
+      name: "",
+      price: 0,
+    },
+  });
+
+  useEffect(() => {
+    // Simulate login for demonstration
+    setIsLoggedIn(true);
+  }, []);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -46,11 +92,12 @@ export default function Home() {
         title: "Products imported successfully!",
         description: `${parsedProducts.length} products have been imported.`,
       });
-    } catch (error) {
+    } catch (error: any) {
+      console.error("Import error:", error);
       toast({
         variant: "destructive",
         title: "Failed to import products",
-        description: "Please check the file format and try again.",
+        description: error.message || "Please check the file format and try again.",
       });
     }
   };
@@ -145,9 +192,73 @@ export default function Home() {
     }
   };
 
+  const handleOpenProductForm = () => {
+    setIsEditingProduct(false);
+    setSelectedProduct(null);
+    form.reset();
+    setShowProductForm(true);
+  };
+
+  const handleEditProduct = (product: Product) => {
+    setIsEditingProduct(true);
+    setSelectedProduct(product);
+    form.setValue("code", product.code);
+    form.setValue("name", product.name);
+    form.setValue("price", product.price);
+    setShowProductForm(true);
+  };
+
+  const handleDeleteProduct = (productCode: string) => {
+    setProducts(products.filter((product) => product.code !== productCode));
+    toast({ title: "Product deleted successfully!" });
+  };
+
+  const onSubmit = (values: ProductSchemaType) => {
+    if (isEditingProduct && selectedProduct) {
+      // Update existing product
+      const updatedProducts = products.map((product) =>
+        product.code === selectedProduct.code ? { ...values } : product
+      );
+      setProducts(updatedProducts);
+      toast({ title: "Product updated successfully!" });
+    } else {
+      // Add new product
+      setProducts([...products, values]);
+      toast({ title: "Product added successfully!" });
+    }
+    setShowProductForm(false);
+    form.reset();
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    toast({ title: "Logged out successfully!" });
+  };
+
+  if (!isLoggedIn) {
+    return (
+      <div className="container mx-auto p-4">
+        <Card className="mb-4">
+          <CardHeader>
+            <CardTitle>Seller Login</CardTitle>
+            <CardDescription>Enter your credentials to log in.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button onClick={() => setIsLoggedIn(true)}>Log In</Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto p-4">
       <Toaster />
+      <div className="flex justify-between items-center mb-4">
+        <CardTitle>DoortoDoor POS</CardTitle>
+        <Button variant="outline" onClick={handleLogout}>Log Out</Button>
+      </div>
+
       <Card className="mb-4">
         <CardHeader>
           <CardTitle>Import Products from Excel</CardTitle>
@@ -161,7 +272,12 @@ export default function Home() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <Card>
           <CardHeader>
-            <CardTitle>Products</CardTitle>
+            <div className="flex justify-between items-center">
+              <CardTitle>Products</CardTitle>
+              <Button size="sm" onClick={handleOpenProductForm}>
+                Add Product
+              </Button>
+            </div>
             <CardDescription>Add products to your cart.</CardDescription>
           </CardHeader>
           <CardContent>
@@ -185,6 +301,20 @@ export default function Home() {
                       onClick={() => handleAiSuggestion(product)}
                     >
                       Suggest Name
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => handleEditProduct(product)}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="destructive"
+                      onClick={() => handleDeleteProduct(product.code)}
+                    >
+                      <Trash className="h-4 w-4" />
                     </Button>
                   </CardContent>
                 </Card>
@@ -273,6 +403,49 @@ export default function Home() {
           </Button>
         </CardContent>
       </Card>
+      <Dialog open={showProductForm} onOpenChange={setShowProductForm}>
+        <DialogTrigger asChild>
+          <Button variant="outline">Add Product</Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{isEditingProduct ? "Edit Product" : "Add Product"}</DialogTitle>
+            <DialogDescription>
+              {isEditingProduct ? "Edit the product details." : "Enter the details for the new product."}
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormItem>
+                <FormLabel>Code</FormLabel>
+                <FormControl>
+                  <Input placeholder="Product Code" {...form.register("code")} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+              <FormItem>
+                <FormLabel>Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="Product Name" {...form.register("name")} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+              <FormItem>
+                <FormLabel>Price</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    placeholder="Product Price"
+                    {...form.register("price", { valueAsNumber: true })}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+              <Button type="submit">{isEditingProduct ? "Update Product" : "Add Product"}</Button>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
