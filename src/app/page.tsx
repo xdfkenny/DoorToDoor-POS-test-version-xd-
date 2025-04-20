@@ -273,7 +273,7 @@ export default function Home() {
         
           
             
-              Seller Login
+              <CardTitle>Seller Login</CardTitle>
             
             
               Enter your credentials to log in.
@@ -597,4 +597,5 @@ export default function Home() {
     
   );
 }
+
 
