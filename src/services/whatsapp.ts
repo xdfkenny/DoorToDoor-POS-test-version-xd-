@@ -31,7 +31,20 @@ export interface WhatsAppMessage {
  * @returns A promise that resolves to a boolean indicating whether the message was sent successfully.
  */
 export async function sendWhatsAppMessage(message: WhatsAppMessage): Promise<boolean> {
-  // TODO: Implement this by calling the wa.me API.
+  const phoneNumber = "+584129997266";
+  const orderDetails = `
+*Seller:* ${message.sellerName}
+*Buyer:* ${message.buyerName}
+*Items:*
+${message.items.map(item => `- ${item.name} (x${item.quantity})`).join('\n')}
+*Total Price:* $${message.totalPrice.toFixed(2)}
+*Invoice Link:* ${message.invoiceLink}
+  `;
+
+  const encodedMessage = encodeURIComponent(orderDetails);
+  const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+
+  window.location.href = whatsappURL; // Redirect to WhatsApp
 
   console.log(message);
   return true;
