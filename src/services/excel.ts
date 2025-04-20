@@ -60,10 +60,27 @@ export async function parseExcelFile(file: File): Promise<Product[]> {
         for (let i = 1; i < rawData.length; i++) {
           const row = rawData[i] as any[];
           if (row.length > 0) {
+            const code = row[codeIndex];
+            const name = row[nameIndex];
+            const price = row[priceIndex];
+
+            if (code === undefined) {
+              reject(new Error(`Code is missing in row ${i + 1}`));
+              return;
+            }
+            if (name === undefined) {
+              reject(new Error(`Name is missing in row ${i + 1}`));
+              return;
+            }
+             if (price === undefined) {
+              reject(new Error(`Price is missing in row ${i + 1}`));
+              return;
+            }
+
             const product: Product = {
-              code: String(row[codeIndex] || '').trim(),
-              name: String(row[nameIndex] || '').trim(),
-              price: Number(row[priceIndex] || 0), // Default to 0 if price is missing
+              code: String(code || '').trim(),
+              name: String(name || '').trim(),
+              price: Number(price || 0), // Default to 0 if price is missing
             };
             products.push(product);
           }
