@@ -322,7 +322,7 @@ export default function Home() {
     <div className="container mx-auto p-4">
       <Toaster />
       <div className="flex justify-between items-center mb-4">
-        <CardTitle>DoortoDoor POS</CardTitle>
+        <CardTitle>DoorToDoor POS</CardTitle>
         <Button onClick={handleLogout}>Log Out</Button>
       </div>
 
@@ -343,7 +343,7 @@ export default function Home() {
       </Card>
 
       <Card className="mb-4">
-        <CardHeader className="flex justify-between items-center">
+        <CardHeader className="flex justify-between text-left">
           <div className="space-y-1">
             <CardTitle>Products</CardTitle>
             <CardDescription>Add products to your cart.</CardDescription>
@@ -355,11 +355,11 @@ export default function Home() {
         <CardContent>
           <ul className="list-none p-0">
             {products.map((product) => (
-              <li key={product.code} className="py-2 border-b last:border-b-0 flex items-center justify-between">
-                <div>
-                  <div className="font-semibold">{product.name}</div>
-                  <div className="text-sm text-muted-foreground">Code: {product.code}</div>
-                </div>
+              <li key={product.code} className="py-2 border-b last:border-b-0 flex justify-between text-left">
+              <div className="flex-1 min-w-0">
+                <div className="font-semibold text-left">{product.name}</div>
+                <div className="text-sm text-muted-foreground text-left">Code: {product.code}</div>
+              </div>
                 <div className="flex items-center">
                   <div className="mr-4">${product.price.toFixed(2)}</div>
                   <Button
