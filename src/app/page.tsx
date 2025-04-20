@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Plus, Minus, X } from "lucide-react";
+import { Plus, Minus, X, Edit, Trash } from "lucide-react";
 import { sendWhatsAppMessage } from "@/services/whatsapp";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
