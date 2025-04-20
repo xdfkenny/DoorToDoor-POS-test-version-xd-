@@ -379,9 +379,9 @@ export default function Home() {
                 {cart.map((item) => (
                   <li key={item.code} className="flex justify-between items-center py-2 border-b">
                     <div>
-                      {item.name} x {item.quantity}
+                      {item.name} x <span className="font-bold">{item.quantity}</span>
                     </div>
-                    <div className="flex items-center">
+                    <div className="flex items-center space-x-2">
                       <Button size="icon" onClick={() => adjustQuantity(item.code, -1)}>
                         <Minus className="h-4 w-4" />
                       </Button>
