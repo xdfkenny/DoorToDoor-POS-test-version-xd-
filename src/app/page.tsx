@@ -379,16 +379,17 @@ export default function Home() {
                 {cart.map((item) => (
                   <li key={item.code} className="flex justify-between items-center py-2 border-b">
                     <div>
-                      {item.name} x <span className="font-bold">{item.quantity}</span>
+                      {item.name}
+                      <span className="mx-4">x{item.quantity}</span>
                     </div>
                     <div className="flex items-center space-x-2">
+                      <span>${(item.price * item.quantity).toFixed(2)}</span>
                       <Button size="icon" onClick={() => adjustQuantity(item.code, -1)}>
                         <Minus className="h-4 w-4" />
                       </Button>
                       <Button size="icon" onClick={() => adjustQuantity(item.code, 1)}>
                         <Plus className="h-4 w-4" />
                       </Button>
-                      <span>${(item.price * item.quantity).toFixed(2)}</span>
                       <Button size="icon" onClick={() => adjustQuantity(item.code, -item.quantity)}>
                         <X className="h-4 w-4" />
                       </Button>
