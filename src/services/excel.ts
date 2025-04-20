@@ -49,7 +49,7 @@ export async function parseExcelFile(file: File): Promise<Product[]> {
         const headerRow = rawData[0] as string[];
         const codeIndex = findColumnIndex(headerRow, ['code', 'product code']);
         const nameIndex = findColumnIndex(headerRow, ['name', 'product name']);
-        const priceIndex = findColumnIndex(headerRow, ['price', 'product price']);
+        const priceIndex = findColumnIndex(headerRow, ['price', 'product price', 'product price']);
 
         if (codeIndex === -1 || nameIndex === -1 || priceIndex === -1) {
           reject(new Error('Required columns (Code, Name, Price) not found or improperly labeled.'));
