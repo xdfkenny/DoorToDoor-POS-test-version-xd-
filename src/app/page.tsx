@@ -45,6 +45,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Icons } from "@/components/icons";
+import jsYaml from 'js-yaml';
 
 const productSchema = z.object({
   code: z.string().min(1, { message: "Product code is required." }),
@@ -53,6 +54,12 @@ const productSchema = z.object({
 });
 
 type ProductSchemaType = z.infer<typeof productSchema>;
+
+// Define the type for user credentials
+interface User {
+  username: string;
+  password?: string;
+}
 
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -67,6 +74,9 @@ export default function Home() {
   const [showProductForm, setShowProductForm] = useState(false);
   const [isEditingProduct, setIsEditingProduct] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [users, setUsers] = useState<User[]>([]);
 
   const form = useForm<ProductSchemaType>({
     resolver: zodResolver(productSchema),
@@ -78,9 +88,50 @@ export default function Home() {
   });
 
   useEffect(() => {
-    // Simulate login for demonstration
-    setIsLoggedIn(true);
+    // Load user credentials from the YAML file
+    const loadUsers = async () => {
+      try {
+        const response = await fetch('/users.yaml'); // Path to your YAML file
+        const yamlText = await response.text();
+        const userData = jsYaml.load(yamlText) as User[];
+        if (Array.isArray(userData)) {
+          setUsers(userData);
+        } else {
+          console.error('YAML data is not an array:', userData);
+          toast({
+            variant: 'destructive',
+            title: 'Failed to load users',
+            description: 'Invalid user data format in YAML file.',
+          });
+        }
+      } catch (error) {
+        console.error('Error loading users:', error);
+        toast({
+          variant: 'destructive',
+          title: 'Failed to load users',
+          description: 'Could not load user credentials from YAML file.',
+        });
+      }
+    };
+
+    loadUsers();
   }, []);
+
+
+  const handleLogin = async () => {
+    // Validate credentials against the YAML data
+    const user = users.find(u => u.username === username && u.password === password);
+    if (user) {
+      setIsLoggedIn(true);
+      toast({ title: "Logged in successfully!" });
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Login Failed",
+        description: "Invalid username or password.",
+      });
+    }
+  };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -225,8 +276,28 @@ export default function Home() {
             <CardDescription>Enter your credentials to log in.</CardDescription>
           </CardHeader>
           <CardContent>
-            {/* Replace with actual login form */}
-            <Button>Log In</Button>
+             <div className="grid gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="username">Username</Label>
+                  <Input
+                    id="username"
+                    placeholder="Enter username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="password">Password</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="Enter password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                </div>
+                <Button onClick={handleLogin}>Log In</Button>
+              </div>
           </CardContent>
         </Card>
       </div>
