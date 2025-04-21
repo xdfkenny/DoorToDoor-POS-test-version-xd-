@@ -13,7 +13,7 @@ export interface WhatsAppMessage {
   /**
    * A list of items in the order, each with a name and quantity.
    */
-  items: { name: string; quantity: number }[];
+  items: { code: string; quantity: number }[];
   /**
    * The total price of the order.
    */
@@ -40,7 +40,7 @@ export async function sendWhatsAppMessage(message: WhatsAppMessage): Promise<boo
 *Seller:* ${message.sellerName}
 *Buyer:* ${message.buyerName}
 *Items:*
-${message.items.map(item => `- ${item.name} (x${item.quantity})`).join('\n')}
+${message.items.map(item => `- ${item.code} (x${item.quantity})`).join('\n')}
 *Total Price:* $${message.totalPrice.toFixed(2)}
 *Invoice Link:* ${message.invoiceLink}
 *Order Notes:* ${message.orderNotes}
@@ -54,4 +54,5 @@ ${message.items.map(item => `- ${item.name} (x${item.quantity})`).join('\n')}
   console.log(message);
   return true;
 }
+
 
