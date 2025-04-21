@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Plus, Minus, X, Edit, Trash } from "lucide-react";
+import { Plus, Minus, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import {
@@ -29,7 +29,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogFooter,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import {
@@ -43,9 +42,8 @@ import {
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Icons } from "@/components/icons";
 import jsYaml from 'js-yaml';
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const productSchema = z.object({
   code: z.string().min(1, { message: "Product code is required." }),
@@ -55,7 +53,6 @@ const productSchema = z.object({
 
 type ProductSchemaType = z.infer<typeof productSchema>;
 
-// Define the type for user credentials
 interface User {
   username: string;
   password?: string;
@@ -70,7 +67,7 @@ export default function Home() {
   const [sellerName, setSellerName] = useState("");
   const [orderNotes, setOrderNotes] = useState("");
   const { toast } = useToast();
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Seller Login State
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showProductForm, setShowProductForm] = useState(false);
   const [isEditingProduct, setIsEditingProduct] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -78,7 +75,6 @@ export default function Home() {
   const [password, setPassword] = useState('');
   const [users, setUsers] = useState<User[]>([]);
   const [selectedBuyer, setSelectedBuyer] = useState("");
-
 
   const form = useForm<ProductSchemaType>({
     resolver: zodResolver(productSchema),
@@ -90,10 +86,9 @@ export default function Home() {
   });
 
   useEffect(() => {
-    // Load user credentials from the YAML file
     const loadUsers = async () => {
       try {
-        const response = await fetch('/users.yaml'); // Path to your YAML file
+        const response = await fetch('/users.yaml');
         const yamlText = await response.text();
         const userData = jsYaml.load(yamlText) as User[];
         if (Array.isArray(userData)) {
@@ -119,15 +114,13 @@ export default function Home() {
     loadUsers();
   }, []);
 
-
   const handleLogin = async () => {
-    // Validate credentials against the YAML data
     const user = users.find(u => u.username === username && u.password === password);
     if (user) {
       setIsLoggedIn(true);
       toast({ title: "Logged in successfully!" });
     } else {
-       toast({
+      toast({
         variant: "destructive",
         title: "Login Failed",
         description: "Invalid username or password.",
@@ -211,19 +204,14 @@ export default function Home() {
 
     const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-    // Mock invoice link, replace with actual invoice generation and link
-    const invoiceLink = "https://example.com/invoice123.json";
-
-   const messageText = `
+    const messageText = `
 *Seller:* ${sellerName}
 *Buyer:* ${selectedBuyer}
 *Items:*
 ${cart.map(item => `- ${item.code} (x${item.quantity})`).join('\n')}
 *Total Price:* $${totalPrice.toFixed(2)}
-*Invoice Link:* ${invoiceLink}
 *Order Notes:* ${orderNotes}
 `;
-
 
     const whatsappURL = `https://wa.me/+584129997266?text=${encodeURIComponent(messageText)}`;
     window.location.href = whatsappURL;
@@ -251,15 +239,13 @@ ${cart.map(item => `- ${item.code} (x${item.quantity})`).join('\n')}
   };
 
   const onSubmit = (values: ProductSchemaType) => {
-   if (isEditingProduct && selectedProduct) {
-      // Update existing product
+    if (isEditingProduct && selectedProduct) {
       const updatedProducts = products.map((product) =>
         product.code === selectedProduct.code ? { ...values, price: Number(values.price) } : product
       );
       setProducts(updatedProducts);
       toast({ title: "Product updated successfully!" });
     } else {
-      // Add new product
       setProducts([...products, { ...values, price: Number(values.price) }]);
       toast({ title: "Product added successfully!" });
     }
@@ -288,7 +274,6 @@ ${cart.map(item => `- ${item.code} (x${item.quantity})`).join('\n')}
                 <Input
                   id="username"
                   placeholder="Enter your username"
-                  type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                 />
@@ -297,8 +282,8 @@ ${cart.map(item => `- ${item.code} (x${item.quantity})`).join('\n')}
                 <Label htmlFor="password">Password</Label>
                 <Input
                   id="password"
-                  placeholder="Enter your password"
                   type="password"
+                  placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
@@ -318,7 +303,9 @@ ${cart.map(item => `- ${item.code} (x${item.quantity})`).join('\n')}
       <Toaster />
       <div className="flex justify-between items-center mb-4">
         <CardTitle>DoortoDoor POS</CardTitle>
-        <Button onClick={handleLogout}>Log Out</Button>
+        <Button variant="outline" onClick={handleLogout}>
+          Log Out
+        </Button>
       </div>
 
       <Card className="mb-4">
@@ -332,43 +319,35 @@ ${cart.map(item => `- ${item.code} (x${item.quantity})`).join('\n')}
       </Card>
 
       <Card className="mb-4">
-        <CardHeader>
-          <div className="flex justify-between items-center">
-            <CardTitle>Products</CardTitle>
-            <Button onClick={handleOpenProductForm}>Add Product</Button>
-          </div>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>
+            Products
+          </CardTitle>
+          <Button variant="outline" size="sm" onClick={handleOpenProductForm}>
+            Add Product
+          </Button>
         </CardHeader>
         <CardContent>
-          
+          <ul>
             {products.map((product) => (
-              <div key={product.code} className="flex justify-between items-center py-2 border-b">
+              <li key={product.code} className="flex justify-between items-center py-2 border-b">
                 <div>
-                  <p className="font-semibold">{product.name}</p>
-                  <p className="text-sm text-muted-foreground">Code: {product.code}</p>
+                  <div className="font-semibold">{product.name}</div>
+                  <div className="text-sm text-muted-foreground">Code: {product.code}</div>
                 </div>
                 <div className="flex items-center">
-                  <p className="mr-4">${product.price.toFixed(2)}</p>
-                  <Button size="sm" onClick={() => addToCart(product)}>
-                    Add to Cart
-                  </Button>
+                  <div className="mr-4">${product.price.toFixed(2)}</div>
                   <Button
                     size="icon"
                     variant="ghost"
-                    onClick={() => handleEditProduct(product)}
+                    onClick={() => addToCart(product)}
                   >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => handleDeleteProduct(product.code)}
-                  >
-                    <Trash className="h-4 w-4" />
+                    <Plus className="h-4 w-4" />
                   </Button>
                 </div>
-              </div>
+              </li>
             ))}
-          
+          </ul>
         </CardContent>
       </Card>
 
@@ -378,41 +357,53 @@ ${cart.map(item => `- ${item.code} (x${item.quantity})`).join('\n')}
         </CardHeader>
         <CardContent>
           {cart.length === 0 ? (
-            <p>Your cart is empty.</p>
+            <div>Your cart is empty.</div>
           ) : (
             <div>
-              
+              <ul>
                 {cart.map((item) => (
-                  <div key={item.code} className="flex items-center justify-between py-2 border-b">
+                  <li key={item.code} className="flex items-center justify-between py-2 border-b">
                     <div className="flex items-center">
-                      <p className="font-semibold">{item.name}</p>
+                      {item.name}
+                      <div className="ml-2">
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => adjustQuantity(item.code, -1)}
+                        >
+                          <Minus className="h-4 w-4" />
+                        </Button>
+                        <span className="font-semibold mx-1">x{item.quantity}</span>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => adjustQuantity(item.code, 1)}
+                        >
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <Button size="icon" variant="outline" onClick={() => adjustQuantity(item.code, -1)}>
-                        <Minus className="h-4 w-4" />
-                      </Button>
-                      <span className="font-bold">x{item.quantity}</span>
-                      <Button size="icon" variant="outline" onClick={() => adjustQuantity(item.code, 1)}>
-                        <Plus className="h-4 w-4" />
-                      </Button>
-                      <p>${(item.price * item.quantity).toFixed(2)}</p>
-                      <Button size="icon" variant="ghost" onClick={() => adjustQuantity(item.code, -item.quantity)}>
+                    <div>
+                      ${(item.price * item.quantity).toFixed(2)}
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => adjustQuantity(item.code, -item.quantity)}
+                      >
                         <X className="h-4 w-4" />
                       </Button>
                     </div>
-                  </div>
+                  </li>
                 ))}
-              
-              
-                <div className="flex justify-between items-center mt-4">
-                  <p>Total: ${cart
-                      .reduce((sum, item) => sum + item.price * item.quantity, 0)
-                      .toFixed(2)}</p>
-                  <Button variant="destructive" onClick={clearCart}>
-                    Clear Cart
-                  </Button>
-                </div>
-              
+              </ul>
+              <div className="flex justify-between items-center mt-4">
+                <div>Total: ${cart
+                  .reduce((sum, item) => sum + item.price * item.quantity, 0)
+                  .toFixed(2)}</div>
+                <Button variant="outline" size="sm" onClick={clearCart}>
+                  Clear Cart
+                </Button>
+              </div>
             </div>
           )}
         </CardContent>
@@ -423,52 +414,52 @@ ${cart.map(item => `- ${item.code} (x${item.quantity})`).join('\n')}
           <CardTitle>Order Details &amp; WhatsApp Export</CardTitle>
         </CardHeader>
         <CardContent>
-          
-            
-              
-                <Label htmlFor="sellerName">Seller Name</Label>
-                <Input
-                  id="sellerName"
-                  placeholder="Enter seller name"
-                  type="text"
-                  value={sellerName}
-                  onChange={(e) => setSellerName(e.target.value)}
-                />
-              
-              
-                <Label htmlFor="buyerSelect">Select Buyer</Label>
-                <Select value={selectedBuyer} onValueChange={setSelectedBuyer}>
-                  <SelectTrigger id="buyerSelect">
-                    <SelectValue placeholder="Select a buyer" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="John Doe">John Doe</SelectItem>
-                    <SelectItem value="Jane Smith">Jane Smith</SelectItem>
-                    <SelectItem value="Peter Jones">Peter Jones</SelectItem>
-                  </SelectContent>
-                </Select>
-              
-              
-                <Label htmlFor="orderNotes">Order Notes</Label>
-                <Textarea
-                  id="orderNotes"
-                  placeholder="Enter any order notes"
-                  value={orderNotes}
-                  onChange={(e) => setOrderNotes(e.target.value)}
-                />
-              
-              
-                <Button onClick={handleWhatsAppExport}>
-                  Export to WhatsApp
-                </Button>
-              
-            
-          
+          <div className="grid gap-4">
+            <div className="flex flex-col space-y-1.5">
+              <Label htmlFor="sellerName">Seller Name</Label>
+              <Input
+                id="sellerName"
+                placeholder="Enter seller name"
+                value={sellerName}
+                onChange={(e) => setSellerName(e.target.value)}
+              />
+            </div>
+            <div className="flex flex-col space-y-1.5">
+              <Label htmlFor="buyerSelect">Select Buyer</Label>
+              <Select value={selectedBuyer} onValueChange={setSelectedBuyer}>
+                <SelectTrigger id="buyerSelect">
+                  <SelectValue placeholder="Select a buyer" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="John Doe">John Doe</SelectItem>
+                  <SelectItem value="Jane Smith">Jane Smith</SelectItem>
+                  <SelectItem value="Peter Jones">Peter Jones</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex flex-col space-y-1.5">
+              <Label htmlFor="orderNotes">Order Notes</Label>
+              <Textarea
+                id="orderNotes"
+                placeholder="Enter any order notes"
+                value={orderNotes}
+                onChange={(e) => setOrderNotes(e.target.value)}
+              />
+            </div>
+            <Button onClick={handleWhatsAppExport}>
+              Export to WhatsApp
+            </Button>
+          </div>
         </CardContent>
       </Card>
 
       <Dialog open={showProductForm} onOpenChange={setShowProductForm}>
-        <DialogContent>
+        <DialogTrigger asChild>
+          <Button variant="outline" size="sm">
+            {isEditingProduct ? "Edit Product" : "Add Product"}
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>{isEditingProduct ? "Edit Product" : "Add Product"}</DialogTitle>
             <DialogDescription>
@@ -478,7 +469,7 @@ ${cart.map(item => `- ${item.code} (x${item.quantity})`).join('\n')}
             </DialogDescription>
           </DialogHeader>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
               <FormField
                 control={form.control}
                 name="code"
@@ -512,15 +503,13 @@ ${cart.map(item => `- ${item.code} (x${item.quantity})`).join('\n')}
                   <FormItem>
                     <FormLabel>Price</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter price" type="number" {...field} />
+                      <Input type="number" placeholder="Enter price" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <DialogFooter>
-                <Button type="submit">{isEditingProduct ? "Update Product" : "Add Product"}</Button>
-              </DialogFooter>
+              <Button type="submit">{isEditingProduct ? "Update Product" : "Add Product"}</Button>
             </form>
           </Form>
         </DialogContent>
