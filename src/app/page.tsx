@@ -12,7 +12,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Plus, Minus, X, Edit, Trash } from "lucide-react";
-import { sendWhatsAppMessage } from "@/services/whatsapp";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import {
@@ -128,7 +127,7 @@ export default function Home() {
       setIsLoggedIn(true);
       toast({ title: "Logged in successfully!" });
     } else {
-      toast({
+       toast({
         variant: "destructive",
         title: "Login Failed",
         description: "Invalid username or password.",
@@ -215,28 +214,19 @@ export default function Home() {
     // Mock invoice link, replace with actual invoice generation and link
     const invoiceLink = "https://example.com/invoice123.json";
 
-    const message = {
-      sellerName,
-      buyerName: selectedBuyer,
-      items: cart.map((item) => ({ code: item.code, quantity: item.quantity })),
-      totalPrice,
-      invoiceLink,
-      orderNotes,
-    };
+   const messageText = `
+*Seller:* ${sellerName}
+*Buyer:* ${selectedBuyer}
+*Items:*
+${cart.map(item => `- ${item.code} (x${item.quantity})`).join('\n')}
+*Total Price:* $${totalPrice.toFixed(2)}
+*Invoice Link:* ${invoiceLink}
+*Order Notes:* ${orderNotes}
+`;
 
-    try {
-      await sendWhatsAppMessage(message);
-      toast({
-        title: "WhatsApp message sent!",
-        description: "Order details have been sent to WhatsApp.",
-      });
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Failed to send WhatsApp message",
-        description: "Please check your WhatsApp configuration and try again.",
-      });
-    }
+
+    const whatsappURL = `https://wa.me/+584129997266?text=${encodeURIComponent(messageText)}`;
+    window.location.href = whatsappURL;
   };
 
   const handleOpenProductForm = () => {
@@ -261,10 +251,10 @@ export default function Home() {
   };
 
   const onSubmit = (values: ProductSchemaType) => {
-    if (isEditingProduct && selectedProduct) {
+   if (isEditingProduct && selectedProduct) {
       // Update existing product
       const updatedProducts = products.map((product) =>
-        product.code === selectedProduct.code ? { ...values } : product
+        product.code === selectedProduct.code ? { ...values, price: Number(values.price) } : product
       );
       setProducts(updatedProducts);
       toast({ title: "Product updated successfully!" });
@@ -288,24 +278,28 @@ export default function Home() {
         
           
             Seller Login
-            Enter your credentials to log in.
+            
+              Enter your credentials to log in.
+            
           
           
             
               
                 Username
                 
-                  Enter username
+                  
                   
                 
               
               
                 Password
                 
-                  Enter password
+                  
                   
                 
               
+              
+                Log In
               
             
           
@@ -328,7 +322,9 @@ export default function Home() {
       
         
           Import Products from Excel
-          Upload your .xlsx file to import products.
+          
+            Upload your .xlsx file to import products.
+          
         
         
           
@@ -345,9 +341,6 @@ export default function Home() {
               Add Product
             
           
-          Add products to your cart.
-        
-        
           
             
               {products.map((product) => (
@@ -386,7 +379,7 @@ export default function Home() {
       
         
           Cart
-          Review and export your cart.
+          
         
         
           {cart.length === 0 ? (
@@ -441,7 +434,7 @@ export default function Home() {
       
         
           Order Details &amp; WhatsApp Export
-          Enter order details and export the cart via WhatsApp.
+          
         
         
           
@@ -449,7 +442,7 @@ export default function Home() {
               
                 Seller Name
                 
-                  Enter seller name
+                  
                   
                 
               
@@ -475,7 +468,7 @@ export default function Home() {
               
                 Order Notes
                 
-                  Enter order notes
+                  
                   
                 
               
@@ -505,7 +498,7 @@ export default function Home() {
                   Product Code
                   
                     
-                      Product code
+                      
                     
                   
                   
@@ -516,7 +509,7 @@ export default function Home() {
                   Product Name
                   
                     
-                      Product name
+                      
                     
                   
                   
@@ -527,7 +520,7 @@ export default function Home() {
                   Price
                   
                     
-                      Price
+                      
                     
                   
                   
