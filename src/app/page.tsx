@@ -30,6 +30,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import {
@@ -220,6 +221,7 @@ export default function Home() {
       items: cart.map((item) => ({ name: item.name, quantity: item.quantity })),
       totalPrice,
       invoiceLink,
+      orderNotes,
     };
 
     try {
@@ -282,267 +284,279 @@ export default function Home() {
 
   if (!isLoggedIn) {
     return (
-      <div className="flex items-center justify-center h-screen bg-background">
-        <Card className="w-96">
-          <CardHeader>
-            <CardTitle>Seller Login</CardTitle>
-            <CardDescription>Enter your credentials to log in.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="username">Username</Label>
-                <Input
-                  id="username"
-                  placeholder="Enter username"
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  placeholder="Enter password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </div>
-              <Button onClick={handleLogin}>Log In</Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      
+        
+          
+            
+              Seller Login
+            
+            
+              Enter your credentials to log in.
+            
+          
+          
+            
+              
+                
+                  Username
+                
+                
+                  
+                  
+                
+              
+              
+                
+                  Password
+                
+                
+                  
+                  
+                
+              
+              
+            
+          
+        
+      
     );
   }
 
   return (
-    <div className="container mx-auto p-4">
-      <Toaster />
-      <div className="flex justify-between items-center mb-4">
-        <CardTitle>DoorToDoor POS</CardTitle>
-        <Button onClick={handleLogout}>Log Out</Button>
-      </div>
+    
+      
+      
+        
+          DoortoDoor POS
+          
+            Log Out
+          
+        
+      
 
-      <Card className="mb-4">
-        <CardHeader>
-          <CardTitle>Import Products from Excel</CardTitle>
-          <CardDescription>
+        
+          
+            Import Products from Excel
+          
+          
             Upload your .xlsx file to import products.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Input
-            type="file"
-            accept=".xlsx"
-            onChange={handleFileUpload}
-          />
-        </CardContent>
-      </Card>
+          
+        
+        
+          
+            
+            
+          
+        
+      
 
-      <Card className="mb-4">
-        <CardHeader className="flex justify-between text-left">
-          <div className="space-y-1">
-            <CardTitle>Products</CardTitle>
-            <CardDescription>Add products to your cart.</CardDescription>
-          </div>
-          <Button size="sm" onClick={handleOpenProductForm}>
-            Add Product
-          </Button>
-        </CardHeader>
-        <CardContent>
-          <ul className="list-none p-0">
-            {products.map((product) => (
-              <li key={product.code} className="py-2 border-b last:border-b-0 flex justify-between text-left">
-              <div className="flex-1 min-w-0">
-                <div className="font-semibold text-left">{product.name}</div>
-                <div className="text-sm text-muted-foreground text-left">Code: {product.code}</div>
-              </div>
-                <div className="flex items-center">
-                  <div className="mr-4">${product.price.toFixed(2)}</div>
-                  <Button
-                    size="sm"
-                    onClick={() => addToCart(product)}
-                  >
-                    Add to Cart
-                  </Button>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => handleEditProduct(product)}
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => handleDeleteProduct(product.code)}
-                  >
-                    <Trash className="h-4 w-4" />
-                  </Button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </CardContent>
-      </Card>
+        
+          
+            
+              Products
+              Add products to your cart.
+            
+            
+              Add Product
+            
+          
+          
+            
+              {products.map((product) => (
+                
+                  
+                    
+                      {product.name}
+                    
+                    
+                      Code: {product.code}
+                    
+                  
+                  
+                    ${product.price.toFixed(2)}
+                    
+                      Add to Cart
+                    
+                    
+                      
+                    
+                    
+                      
+                    
+                  
+                
+              ))}
+            
+          
+        
+      
 
-      <Card className="mb-4">
-        <CardHeader>
-          <CardTitle>Cart</CardTitle>
-          <CardDescription>Review and export your cart.</CardDescription>
-        </CardHeader>
-        <CardContent>
+      
+        
+          
+            Cart
+          
+          
+            Review and export your cart.
+          
+        
+        
           {cart.length === 0 ? (
-            <div className="text-center">Your cart is empty.</div>
+            
+              Your cart is empty.
+            
           ) : (
-            <div>
-              <ul className="list-none p-0">
+            
+              
                 {cart.map((item) => (
-                  <li key={item.code} className="py-2 border-b last:border-b-0 flex items-center justify-between">
-                    <div className="flex items-center">
-                      <div className="font-semibold">{item.name}</div>
-                      <div className="mx-4">x <span className="font-bold">{item.quantity}</span></div>
-                      <div>${(item.price * item.quantity).toFixed(2)}</div>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Button size="icon" variant="outline" onClick={() => adjustQuantity(item.code, -1)}>
-                        <Minus className="h-4 w-4" />
-                      </Button>
-                      <Button size="icon" variant="outline" onClick={() => adjustQuantity(item.code, 1)}>
-                        <Plus className="h-4 w-4" />
-                      </Button>
-                      <Button size="icon" variant="destructive" onClick={() => adjustQuantity(item.code, -item.quantity)}>
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </li>
+                  
+                    
+                      
+                        {item.name}
+                        
+                          x {item.quantity}
+                        
+                        ${(item.price * item.quantity).toFixed(2)}
+                      
+                      
+                        
+                          
+                        
+                        
+                          
+                        
+                        
+                          
+                        
+                      
+                    
+                  
                 ))}
-              </ul>
-              <div className="font-semibold mt-2">
+              
+              
                 Total: ${cart
                   .reduce((sum, item) => sum + item.price * item.quantity, 0)
                   .toFixed(2)}
-              </div>
-              <Button variant="destructive" onClick={clearCart}>
+              
+              
                 Clear Cart
-              </Button>
-            </div>
+              
+            
           )}
-        </CardContent>
-      </Card>
+        
+      
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Order Details &amp; WhatsApp Export</CardTitle>
-          <CardDescription>
+      
+        
+          
+            Order Details &amp; WhatsApp Export
+          
+          
             Enter order details and export the cart via WhatsApp.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="sellerName">Seller Name</Label>
-              <Input
-                id="sellerName"
-                placeholder="Enter seller name"
-                type="text"
-                value={sellerName}
-                onChange={(e) => setSellerName(e.target.value)}
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="buyerName">Select Buyer</Label>
-              <Select value={selectedBuyer} onValueChange={setSelectedBuyer}>
-                <SelectTrigger id="buyerName">
-                  <SelectValue placeholder="Select a buyer" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="John Doe">John Doe</SelectItem>
-                  <SelectItem value="Jane Smith">Jane Smith</SelectItem>
-                  <SelectItem value="Peter Jones">Peter Jones</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="orderNotes">Order Notes</Label>
-              <Textarea
-                id="orderNotes"
-                placeholder="Additional notes for the order"
-                value={orderNotes}
-                onChange={(e) => setOrderNotes(e.target.value)}
-              />
-            </div>
-            <Button onClick={handleWhatsAppExport}>Export to WhatsApp</Button>
-          </div>
-        </CardContent>
-      </Card>
+          
+        
+        
+          
+            
+              
+                Seller Name
+              
+              
+                
+                
+              
+            
+            
+              Select Buyer
+              
+                
+                  
+                  Select a buyer
+                
+                
+                  
+                    John Doe
+                  
+                  
+                    Jane Smith
+                  
+                  
+                    Peter Jones
+                  
+                
+              
+            
+            
+              Order Notes
+              
+                
+                
+              
+            
+            
+              Export to WhatsApp
+            
+          
+        
+      
 
-      <Dialog open={showProductForm} onOpenChange={setShowProductForm}>
-        <DialogTrigger asChild>
-          <Button variant="outline">Add Product</Button>
-        </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>{isEditingProduct ? "Edit Product" : "Add Product"}</DialogTitle>
-            <DialogDescription>
+      
+        
+          Add Product
+        
+        
+          
+            
+              {isEditingProduct ? "Edit Product" : "Add Product"}
+            
+            
               {isEditingProduct
                 ? "Edit the product details."
                 : "Enter the details for the new product."}
-            </DialogDescription>
-          </DialogHeader>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="code"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Product Code</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Product Code" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Product Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Product Name" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="price"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Price</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Product Price"
-                        type="number"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button type="submit">{isEditingProduct ? "Update Product" : "Add Product"}</Button>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
-    </div>
+            
+          
+          
+            
+              
+                
+                  Product Code
+                
+                
+                  
+                  
+                
+                
+              
+              
+                
+                  Product Name
+                
+                
+                  
+                  
+                
+                
+              
+              
+                
+                  Price
+                
+                
+                  
+                  
+                
+                
+              
+              
+                
+                  
+                
+              
+            
+          
+        
+      
+    
   );
 }
+

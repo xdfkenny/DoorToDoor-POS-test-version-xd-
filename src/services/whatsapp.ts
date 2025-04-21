@@ -22,6 +22,10 @@ export interface WhatsAppMessage {
    * A link to the JSON invoice.
    */
   invoiceLink: string;
+   /**
+   * Additional notes for the order.
+   */
+  orderNotes: string;
 }
 
 /**
@@ -39,6 +43,7 @@ export async function sendWhatsAppMessage(message: WhatsAppMessage): Promise<boo
 ${message.items.map(item => `- ${item.name} (x${item.quantity})`).join('\n')}
 *Total Price:* $${message.totalPrice.toFixed(2)}
 *Invoice Link:* ${message.invoiceLink}
+*Order Notes:* ${message.orderNotes}
   `;
 
   const encodedMessage = encodeURIComponent(orderDetails);
@@ -49,3 +54,4 @@ ${message.items.map(item => `- ${item.name} (x${item.quantity})`).join('\n')}
   console.log(message);
   return true;
 }
+
