@@ -540,5 +540,3 @@ ${cart.map(item => `- ${item.code} (x${item.quantity})`).join('\n')}
     
   );
 }
-
-
